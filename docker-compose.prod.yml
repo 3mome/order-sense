@@ -1,23 +1,11 @@
-# version: "3.8"
-
-# services:
-#   next-prod:
-#     build:
-#       context: .
-#       dockerfile: Dockerfile.prod
-#     ports:
-#       - "3002:3002"
-#     env_file:
-#       - .env
-#     restart: always
 version: '3.8'
 
 services:
-  order-sense:
+  backend:
     build:
       context: .
       dockerfile: Dockerfile.prod
-    container_name: order-sense
+    container_name: backend
     env_file:
       - .env
     ports:
@@ -26,18 +14,18 @@ services:
       - "traefik.enable=true"
 
       #HTTPS
-      - "traefik.http.routers.order-sense.rule=Host(`${BACKEND_URL}`)"
-      - "traefik.http.routers.order-sense.entrypoints=websecure"
-      - "traefik.http.routers.order-sense.tls.certresolver=cloudflare"
-      - "traefik.http.routers.order-sense.service=order-sense"
+      - "traefik.http.routers.backend.rule=Host(`${BACKEND_URL}`)"
+      - "traefik.http.routers.backend.entrypoints=websecure"
+      - "traefik.http.routers.backend.tls.certresolver=cloudflare"
+      - "traefik.http.routers.backend.service=backend"
 
       #HTTP
-      - "traefik.http.routers.order-sense-web.rule=Host(`${BACKEND_URL}`)"
-      - "traefik.http.routers.order-sense-web.entrypoints=web"
-      - "traefik.http.routers.order-sense-web.service=order-sense"
+      - "traefik.http.routers.backend-web.rule=Host(`${BACKEND_URL}`)"
+      - "traefik.http.routers.backend-web.entrypoints=web"
+      - "traefik.http.routers.backend-web.service=backend"
 
       # HTTP to HTTPS redirection
-      - "traefik.http.services.order-sense.loadbalancer.server.port=${PORT}"
+      - "traefik.http.services.backend.loadbalancer.server.port=${PORT}"
     networks:
       - traefik
     expose:
