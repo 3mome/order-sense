@@ -1,12 +1,48 @@
-version: "3.8"
+# version: "3.8"
+
+# services:
+#   next-prod:
+#     build:
+#       context: .
+#       dockerfile: Dockerfile.prod
+#     ports:
+#       - "3002:3002"
+#     env_file:
+#       - .env
+#     restart: always
+version: '3.8'
 
 services:
-  next-prod:
+  order-sense:
     build:
       context: .
       dockerfile: Dockerfile.prod
-    ports:
-      - "3002:3002"
+    container_name: order-sense
     env_file:
       - .env
-    restart: always
+    ports:
+      - "${BACKEND_PORT}:${BACKEND_PORT}"
+    labels:
+      - "traefik.enable=true"
+
+      #HTTPS
+      - "traefik.http.routers.order-sense.rule=Host(`${BACKEND_URL}`)"
+      - "traefik.http.routers.order-sense.entrypoints=websecure"
+      - "traefik.http.routers.order-sense.tls.certresolver=cloudflare"
+      - "traefik.http.routers.order-sense.service=order-sense"
+
+      #HTTP
+      - "traefik.http.routers.order-sense-web.rule=Host(`${BACKEND_URL}`)"
+      - "traefik.http.routers.order-sense-web.entrypoints=web"
+      - "traefik.http.routers.order-sense-web.service=order-sense"
+
+      # HTTP to HTTPS redirection
+      - "traefik.http.services.order-sense.loadbalancer.server.port=${BACKEND_PORT}"
+    networks:
+      - traefik
+    expose:
+      - "${BACKEND_PORT}"
+networks:
+  traefik:
+    external: true
+    name: devops-traefik
