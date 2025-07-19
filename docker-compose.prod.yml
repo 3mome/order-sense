@@ -21,7 +21,7 @@ services:
     env_file:
       - .env
     ports:
-      - "${BACKEND_PORT}:${BACKEND_PORT}"
+      - "${PORT}:${PORT}"
     labels:
       - "traefik.enable=true"
 
@@ -37,11 +37,11 @@ services:
       - "traefik.http.routers.order-sense-web.service=order-sense"
 
       # HTTP to HTTPS redirection
-      - "traefik.http.services.order-sense.loadbalancer.server.port=${BACKEND_PORT}"
+      - "traefik.http.services.order-sense.loadbalancer.server.port=${PORT}"
     networks:
       - traefik
     expose:
-      - "${BACKEND_PORT}"
+      - "${PORT}"
 networks:
   traefik:
     external: true
